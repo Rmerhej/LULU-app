@@ -11,7 +11,10 @@ import java.time.LocalDateTime;
  * Une offre d'emploi et le suivi de la candidature correspondante.
  */
 @Entity
-@Table(name = "job_offer")
+// La contrainte existe aussi dans db/migration/V1 (MySQL) ; la déclarer ici l'applique
+// au schéma créé par Hibernate pour les tests (H2), et documente la règle dans le code.
+@Table(name = "job_offer", uniqueConstraints = @UniqueConstraint(
+        name = "uk_job_offer_source_external", columnNames = {"source", "external_id"}))
 public class JobOffer {
 
     @Id
