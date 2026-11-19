@@ -5,6 +5,11 @@
 Carnet de candidatures pour une recherche d'emploi dans le **luxe et la mode**, en Île-de-France :
 développement produit et matières, chef de produit, achat, production.
 
+## Documentation
+
+- [Guide d'utilisation (PDF)](docs/guide-utilisation.pdf)
+- [Stack technique et choix de conception (PDF)](docs/stack-technique.pdf)
+
 ## Ce que fait l'application
 
 - **Rechercher des offres** sur les sites d'emploi via l'API Adzuna, avec des expressions prêtes à l'emploi
