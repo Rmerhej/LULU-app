@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mes offres')}"></head>
+
+<body>
+<div class="lulu-shell">
+    <aside th:replace="~{fragments/layout :: side('offres')}"></aside>
+
+    <main class="lulu-main">
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+            <h1 class="mb-0">Mes offres</h1>
+            <a th:href="@{/offres/nouvelle}" class="btn btn-lulu-ghost">Ajouter une offre</a>
+        </div>
+
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
+        <!-- Filtre par étape -->
+        <nav class="lulu-filters mb-3" aria-label="Filtrer par étape">
+            <a th:href="@{/offres}" th:classappend="${etape == null} ? 'active'">Toutes</a>
+            <a th:each="s : ${statuses}" th:href="@{/offres(etape=${s})}"
+               th:classappend="${etape == s} ? 'active'" th:text="${s.libelle}"></a>
+        </nav>
+
+        <p th:if="${#lists.isEmpty(offers)}" class="lulu-panel">
+            <span th:if="${etape == null}">
+                Aucune offre suivie.
+                <a th:href="@{/recherche}">Lancez une recherche</a> ou
+                <a th:href="@{/offres/nouvelle}">ajoutez une offre vue sur un site carrière</a>.
+            </span>
+            <span th:unless="${etape == null}">Aucune offre à cette étape.</span>
+        </p>
+
+        <div>
+            <div th:each="o : ${offers}" class="lulu-offer">
+                <div>
+                    <a class="lulu-offer-title" th:href="@{/offres/{id}(id=${o.id})}" th:text="${o.title}"></a>
+                    <div class="lulu-offer-meta">
+                        <span th:text="${o.company ?: 'Entreprise non précisée'}"></span>
+                        <span th:if="${o.location}" th:text="', ' + ${o.location}"></span>
+                        <span th:if="${o.contractType}" th:text="', ' + ${o.contractType}"></span>
+                    </div>
+                    <div class="lulu-offer-meta small"
+                         th:text="${o.source.libelle} + ', le ' + ${#temporals.format(o.createdAt, 'dd/MM/yyyy')}"></div>
+                </div>
+                <div class="lulu-offer-side">
+                    <span th:replace="~{fragments/layout :: tag(${o.status})}"></span>
+                    <span th:if="${o.aiScore != null}" class="lulu-score"
+                          th:classappend="${o.aiScore >= 70} ? 'high' : (${o.aiScore >= 45} ? 'mid' : '')"
+                          th:text="${o.aiScore}" th:title="'Adéquation : ' + ${o.aiScore} + ' / 100'"></span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

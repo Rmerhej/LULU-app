@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Introuvable')}"></head>
+
+<body>
+<main class="lulu-login">
+    <div class="lulu-panel text-center">
+        <h1 class="h2">Introuvable</h1>
+        <p class="text-secondary" th:text="${errorMessage}">Élément introuvable.</p>
+        <a th:href="@{/offres}" class="btn btn-lulu">Retour à mes offres</a>
+    </div>
+</main>
+</body>
+</html>

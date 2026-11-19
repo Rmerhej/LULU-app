@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<!-- En-tête commun : th:replace="~{fragments/layout :: head('Titre')}" -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · LULU'">LULU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..600&family=Work+Sans:wght@400;500;600&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/lulu.css}" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- Barre latérale : th:replace="~{fragments/layout :: side('offres')}" -->
+<aside th:fragment="side(active)" class="lulu-side">
+    <a th:href="@{/}" class="lulu-brand">LULU<small>Carnet de candidatures</small></a>
+    <nav class="lulu-nav" aria-label="Navigation principale">
+        <a th:href="@{/}" th:classappend="${active == 'accueil'} ? 'active'">Accueil</a>
+        <a th:href="@{/recherche}" th:classappend="${active == 'recherche'} ? 'active'">Rechercher</a>
+        <a th:href="@{/offres}" th:classappend="${active == 'offres'} ? 'active'">Mes offres</a>
+        <a th:href="@{/offres/nouvelle}" th:classappend="${active == 'nouvelle'} ? 'active'">Ajouter une offre</a>
+        <a th:href="@{/profil}" th:classappend="${active == 'profil'} ? 'active'">Profil</a>
+    </nav>
+    <!-- Déconnexion en POST (avec jeton CSRF) -->
+    <form th:action="@{/logout}" method="post" class="lulu-logout">
+        <button type="submit">Se déconnecter</button>
+    </form>
+</aside>
+
+<!-- Messages : th:replace="~{fragments/layout :: messages}" -->
+<th:block th:fragment="messages">
+    <div th:if="${successMessage}" class="alert alert-success" role="status" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-warning" role="alert" th:text="${errorMessage}"></div>
+</th:block>
+
+<!-- Étiquette de statut : th:replace="~{fragments/layout :: tag(${offer.status})}" -->
+<span th:fragment="tag(status)" class="lulu-tag" th:classappend="${status.css}" th:text="${status.libelle}"></span>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Rechercher')}"></head>
+
+<body>
+<div class="lulu-shell">
+    <aside th:replace="~{fragments/layout :: side('recherche')}"></aside>
+
+    <main class="lulu-main">
+        <h1 class="mb-2">Rechercher des offres</h1>
+        <p class="lulu-lead mb-4">
+            Offres publiées sur les sites d'emploi, rassemblées par Adzuna. Les maisons qui recrutent
+            surtout sur leur propre site se retrouvent plutôt via
+            <a th:href="@{/offres/nouvelle}">Ajouter une offre</a>.
+        </p>
+
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
+        <!-- Critères -->
+        <form th:action="@{/recherche}" method="get" class="lulu-panel mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="preset" class="form-label">Poste</label>
+                    <select id="preset" class="form-select" aria-describedby="preset-help">
+                        <option value="">Choisir une expression…</option>
+                        <optgroup th:each="f : ${families}" th:label="${f.libelle}">
+                            <option th:each="e : ${f.expressions}" th:value="${e}" th:text="${e}"
+                                    th:selected="${e == q}"></option>
+                        </optgroup>
+                    </select>
+                    <div id="preset-help" class="form-text">Ou tapez vos propres mots à droite.</div>
+                </div>
+                <div class="col-md-4">
+                    <label for="q" class="form-label">Expression recherchée</label>
+                    <input type="text" id="q" name="q" class="form-control" th:value="${q}" maxlength="100"
+                           required placeholder="Ex : développement produit">
+                </div>
+                <div class="col-md-3">
+                    <label for="where" class="form-label">Lieu</label>
+                    <input type="text" id="where" name="where" class="form-control" th:value="${where}" maxlength="100">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-lulu mt-3">Rechercher</button>
+        </form>
+
+        <!-- Résultats ("result" et "c" sont des records : accesseurs avec parenthèses) -->
+        <div th:if="${result != null}">
+            <p th:if="${#lists.isEmpty(result.candidates())}" class="lulu-panel">
+                Aucune offre ne contient exactement « <span th:text="${q}"></span> » à cet endroit.
+                Essayez une expression plus courte ou en anglais, ou élargissez le lieu.
+            </p>
+
+            <form th:unless="${#lists.isEmpty(result.candidates())}" th:action="@{/recherche}" method="post">
+                <input type="hidden" name="q" th:value="${q}">
+                <input type="hidden" name="where" th:value="${where}">
+                <input type="hidden" name="page" th:value="${result.page()}">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <span class="lulu-figure-label">
+                        <span th:text="${result.totalResults()}">0</span> offres,
+                        page <span th:text="${result.page()}">1</span> sur <span th:text="${result.totalPages()}">1</span>
+                    </span>
+                    <button type="submit" class="btn btn-lulu">Ajouter la sélection à mes offres</button>
+                </div>
+
+                <div th:each="c : ${result.candidates()}" class="lulu-offer">
+                    <div class="d-flex gap-3">
+                        <input type="checkbox" class="form-check-input mt-1 flex-shrink-0" name="ids"
+                               th:id="'o-' + ${c.externalId()}" th:value="${c.externalId()}"
+                               th:disabled="${c.alreadyImported()}">
+                        <div>
+                            <label class="lulu-offer-title d-block" th:for="'o-' + ${c.externalId()}"
+                                   th:text="${c.title()}"></label>
+                            <div class="lulu-offer-meta">
+                                <span th:text="${c.company() ?: 'Entreprise non précisée'}"></span>
+                                <span th:if="${c.location()}" th:text="', ' + ${c.location()}"></span>
+                                <span th:if="${c.contract()}" th:text="', ' + ${c.contract()}"></span>
+                                <span th:if="${c.salary()}" th:text="', ' + ${c.salary()}"></span>
+                            </div>
+                            <p class="small mb-1 mt-1" th:text="${c.excerpt()}"></p>
+                            <a th:if="${c.url()}" th:href="${c.url()}" target="_blank" rel="noopener noreferrer"
+                               class="small">Voir l'annonce d'origine</a>
+                        </div>
+                    </div>
+                    <div class="lulu-offer-side">
+                        <span th:if="${c.alreadyImported()}" class="lulu-tag tag-todo">Déjà ajoutée</span>
+                        <span th:if="${c.published()}" class="lulu-offer-meta" th:text="${c.published()}"></span>
+                    </div>
+                </div>
+            </form>
+
+            <nav th:if="${result.totalPages() > 1}" class="d-flex gap-2 mt-3" aria-label="Pages de résultats">
+                <a th:if="${result.hasPrevious()}" class="btn btn-lulu-ghost btn-sm"
+                   th:href="@{/recherche(q=${q}, where=${where}, page=${result.page() - 1})}">Page précédente</a>
+                <a th:if="${result.hasNext()}" class="btn btn-lulu-ghost btn-sm"
+                   th:href="@{/recherche(q=${q}, where=${where}, page=${result.page() + 1})}">Page suivante</a>
+            </nav>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

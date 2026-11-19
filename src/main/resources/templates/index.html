@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Accueil')}"></head>
+
+<body>
+<div class="lulu-shell">
+    <aside th:replace="~{fragments/layout :: side('accueil')}"></aside>
+
+    <!-- "stats" est un record : accesseurs appelés avec des parenthèses -->
+    <main class="lulu-main" th:with="s=${stats}">
+
+        <h1 class="mb-2" th:text="${firstName != null} ? ${'Bonjour ' + firstName} : 'Bonjour'">Bonjour</h1>
+        <p class="lulu-lead mb-4">
+            Développement produit, chef de produit, achat, production : vos candidatures dans le luxe
+            et la mode, en Île-de-France.
+        </p>
+
+        <div th:if="${!profileComplete}" class="alert alert-warning">
+            Commencez par <a th:href="@{/profil}" class="alert-link">remplir votre profil</a> :
+            l'analyse des offres compare chaque annonce à votre parcours.
+        </div>
+
+        <!-- Chiffres clés -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="lulu-panel h-100">
+                    <div class="lulu-figure" th:text="${s.total()}">0</div>
+                    <div class="lulu-figure-label">offres suivies</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lulu-panel h-100">
+                    <div class="lulu-figure" th:text="${s.analysees()}">0</div>
+                    <div class="lulu-figure-label">analysées par l'IA</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lulu-panel h-100">
+                    <div class="lulu-figure" th:text="${s.envoyees()}">0</div>
+                    <div class="lulu-figure-label">candidatures envoyées</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="lulu-panel h-100">
+                    <div class="lulu-figure" style="color: var(--lulu-oxblood)" th:text="${s.entretiens()}">0</div>
+                    <div class="lulu-figure-label"
+                         th:text="${s.tauxReponse() != null} ? ${'entretiens ou offres (' + s.tauxReponse() + ' % des envois)'} : 'entretiens ou offres'">
+                        entretiens ou offres
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Étapes -->
+            <div class="col-lg-5">
+                <div class="lulu-panel h-100">
+                    <h2 class="mb-3">Où en sont vos candidatures</h2>
+                    <ul class="list-unstyled mb-0">
+                        <li th:each="e : ${s.parEtape()}" class="d-flex justify-content-between align-items-center py-1">
+                            <span class="lulu-tag" th:classappend="${e.css()}" th:text="${e.libelle()}"></span>
+                            <span th:text="${e.nombre()}">0</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Dernières offres -->
+            <div class="col-lg-7">
+                <div class="lulu-panel h-100">
+                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                        <h2 class="mb-0">Dernières offres</h2>
+                        <a th:href="@{/offres}">Toutes mes offres</a>
+                    </div>
+
+                    <p th:if="${#lists.isEmpty(latest)}" class="text-secondary mb-0">
+                        Aucune offre pour l'instant.
+                        <a th:href="@{/recherche}">Lancez une recherche</a> ou
+                        <a th:href="@{/offres/nouvelle}">ajoutez une offre vue sur un site carrière</a>.
+                    </p>
+
+                    <div th:each="o : ${latest}" class="lulu-offer">
+                        <div>
+                            <a class="lulu-offer-title" th:href="@{/offres/{id}(id=${o.id})}" th:text="${o.title}"></a>
+                            <div class="lulu-offer-meta" th:text="${o.company ?: 'Entreprise non précisée'}"></div>
+                        </div>
+                        <div class="lulu-offer-side">
+                            <span th:replace="~{fragments/layout :: tag(${o.status})}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

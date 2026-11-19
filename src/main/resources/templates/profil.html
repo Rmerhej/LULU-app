@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Profil')}"></head>
+
+<body>
+<div class="lulu-shell">
+    <aside th:replace="~{fragments/layout :: side('profil')}"></aside>
+
+    <main class="lulu-main">
+        <h1 class="mb-2">Profil</h1>
+        <p class="lulu-lead mb-4">
+            L'IA compare chaque offre à ce profil. Le plus simple : coller les rubriques du CV.
+            Ne mettez ni téléphone, ni e-mail, ni adresse : ces textes sont envoyés au service d'IA.
+        </p>
+
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
+        <form th:action="@{/profil}" th:object="${profile}" method="post" class="lulu-panel" novalidate>
+
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="fullName" class="form-label">Prénom et nom</label>
+                    <input type="text" th:field="*{fullName}" class="form-control" th:errorclass="is-invalid">
+                    <div class="form-text">Sert uniquement à signer les lettres. Jamais envoyé à l'IA.</div>
+                    <div class="invalid-feedback" th:errors="*{fullName}"></div>
+                </div>
+                <div class="col-md-7">
+                    <label for="headline" class="form-label">Poste recherché *</label>
+                    <input type="text" th:field="*{headline}" class="form-control" th:errorclass="is-invalid"
+                           placeholder="Ex : Assistante développement produit prêt-à-porter, CDI ou CDD">
+                    <div class="invalid-feedback" th:errors="*{headline}"></div>
+                </div>
+
+                <div class="col-12">
+                    <label for="summary" class="form-label">Résumé</label>
+                    <textarea th:field="*{summary}" rows="3" class="form-control" th:errorclass="is-invalid"></textarea>
+                    <div class="invalid-feedback" th:errors="*{summary}"></div>
+                </div>
+
+                <div class="col-12">
+                    <label for="experience" class="form-label">Expériences et formation *</label>
+                    <textarea th:field="*{experience}" rows="12" class="form-control" th:errorclass="is-invalid"
+                              placeholder="Collez ici les rubriques Expériences et Formations du CV"></textarea>
+                    <div class="invalid-feedback" th:errors="*{experience}"></div>
+                </div>
+
+                <div class="col-md-7">
+                    <label for="skills" class="form-label">Compétences</label>
+                    <textarea th:field="*{skills}" rows="3" class="form-control" th:errorclass="is-invalid"
+                              placeholder="Ex : PLM, suivi de prototypes, sourcing matières, Excel"></textarea>
+                    <div class="invalid-feedback" th:errors="*{skills}"></div>
+                </div>
+                <div class="col-md-5">
+                    <label for="languages" class="form-label">Langues</label>
+                    <textarea th:field="*{languages}" rows="3" class="form-control" th:errorclass="is-invalid"
+                              placeholder="Ex : Anglais C1, Espagnol B1"></textarea>
+                    <div class="invalid-feedback" th:errors="*{languages}"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-lulu mt-4">Enregistrer le profil</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

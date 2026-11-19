@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${offer.title})}"></head>
+
+<body>
+<div class="lulu-shell">
+    <aside th:replace="~{fragments/layout :: side('offres')}"></aside>
+
+    <main class="lulu-main">
+        <a th:href="@{/offres}" class="small">Retour à mes offres</a>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mt-2 mb-3">
+            <div>
+                <h1 class="mb-1" th:text="${offer.title}">Intitulé</h1>
+                <div class="lulu-offer-meta">
+                    <span th:text="${offer.company ?: 'Entreprise non précisée'}"></span><span
+                        th:if="${offer.location}" th:text="', ' + ${offer.location}"></span><span
+                        th:if="${offer.contractType}" th:text="', ' + ${offer.contractType}"></span><span
+                        th:if="${offer.salary}" th:text="', ' + ${offer.salary}"></span>
+                </div>
+            </div>
+            <span th:replace="~{fragments/layout :: tag(${offer.status})}"></span>
+        </div>
+
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
+        <div class="row g-4">
+
+            <!-- Colonne principale : analyse et lettre -->
+            <div class="col-lg-8">
+
+                <section class="lulu-panel mb-4" aria-labelledby="analyse-title">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h2 id="analyse-title" class="mb-0">Adéquation avec le profil</h2>
+                        <form th:action="@{/offres/{id}/analyser(id=${offer.id})}" method="post" class="js-busy">
+                            <button type="submit" class="btn btn-lulu btn-sm" data-busy="Analyse en cours…"
+                                    th:text="${offer.analysedAt == null} ? 'Analyser l\'offre' : 'Relancer l\'analyse'">
+                                Analyser l'offre
+                            </button>
+                        </form>
+                    </div>
+
+                    <p th:if="${offer.analysedAt == null}" class="text-secondary mb-0">
+                        L'IA compare l'annonce à votre profil, relève vos points forts et ce qui manque,
+                        puis rédige une lettre de motivation dans la langue de l'annonce.
+                    </p>
+
+                    <th:block th:if="${offer.analysedAt != null}">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="lulu-score" style="width:3.4rem;height:3.4rem;font-size:1.3rem"
+                                  th:classappend="${offer.aiScore >= 70} ? 'high' : (${offer.aiScore >= 45} ? 'mid' : '')"
+                                  th:text="${offer.aiScore}"></span>
+                            <span class="lulu-figure-label"
+                                  th:text="'sur 100, analysé le ' + ${#temporals.format(offer.analysedAt, 'dd/MM/yyyy à HH:mm')}"></span>
+                        </div>
+                        <h3>Points forts</h3>
+                        <p class="lulu-prose" th:text="${offer.aiStrengths}"></p>
+                        <h3>À renforcer</h3>
+                        <p class="lulu-prose" th:text="${offer.aiGaps}"></p>
+                        <h3>Conseils</h3>
+                        <p class="lulu-prose mb-0" th:text="${offer.aiAdvice}"></p>
+                    </th:block>
+                </section>
+
+                <section th:if="${offer.coverLetter != null}" class="lulu-panel mb-4" aria-labelledby="lettre-title">
+                    <h2 id="lettre-title" class="mb-1">Lettre de motivation</h2>
+                    <p class="lulu-figure-label">Brouillon à relire et à personnaliser avant tout envoi.</p>
+                    <form th:action="@{/offres/{id}/lettre(id=${offer.id})}" method="post">
+                        <label for="letter" class="visually-hidden">Lettre de motivation</label>
+                        <textarea id="letter" name="letter" rows="18" class="form-control lulu-letter mb-3"
+                                  th:text="${offer.coverLetter}"></textarea>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-lulu">Enregistrer la lettre</button>
+                            <button type="button" id="copy-letter" class="btn btn-lulu-ghost">Copier la lettre</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="lulu-panel" aria-labelledby="annonce-title">
+                    <h2 id="annonce-title" class="mb-1">Annonce</h2>
+                    <p class="lulu-figure-label">
+                        <span th:text="${offer.source.libelle}"></span>
+                        <a th:if="${offer.url != null and (#strings.startsWith(offer.url, 'https://') or #strings.startsWith(offer.url, 'http://'))}"
+                           th:href="${offer.url}" target="_blank" rel="noopener noreferrer">, voir l'annonce d'origine</a>
+                    </p>
+                    <p th:if="${offer.source.name() == 'ADZUNA'}" class="small text-secondary">
+                        Adzuna ne fournit qu'un extrait. Pour une analyse plus juste, collez ici le texte complet
+                        de l'annonce, puis relancez l'analyse.
+                    </p>
+                    <form th:action="@{/offres/{id}/description(id=${offer.id})}" method="post">
+                        <label for="description" class="visually-hidden">Texte de l'annonce</label>
+                        <textarea id="description" name="description" rows="12" class="form-control mb-3"
+                                  th:text="${offer.description}"></textarea>
+                        <button type="submit" class="btn btn-lulu-ghost btn-sm">Enregistrer le texte</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Colonne latérale : suivi -->
+            <div class="col-lg-4">
+                <section class="lulu-panel mb-4" aria-labelledby="suivi-title">
+                    <h2 id="suivi-title" class="mb-3">Suivi</h2>
+                    <form th:action="@{/offres/{id}/suivi(id=${offer.id})}" th:object="${tracking}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Étape</label>
+                            <select th:field="*{status}" class="form-select" th:errorclass="is-invalid">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s.libelle}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:errors="*{status}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="appliedAt" class="form-label">Candidature envoyée le</label>
+                            <input type="date" th:field="*{appliedAt}" class="form-control">
+                            <div class="form-text">Remplie automatiquement au premier envoi.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea th:field="*{notes}" rows="5" class="form-control" th:errorclass="is-invalid"
+                                      placeholder="Contact, date d'entretien, relance prévue…"></textarea>
+                            <div class="invalid-feedback" th:errors="*{notes}"></div>
+                        </div>
+                        <button type="submit" class="btn btn-lulu w-100">Mettre à jour le suivi</button>
+                    </form>
+                </section>
+
+                <form th:action="@{/offres/{id}/supprimer(id=${offer.id})}" method="post" class="js-confirm"
+                      data-confirm="Supprimer cette offre et son suivi ?">
+                    <button type="submit" class="btn btn-link text-danger p-0">Supprimer l'offre</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

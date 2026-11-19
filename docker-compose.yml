@@ -1,0 +1,42 @@
+services:
+
+  # ----- Base de données MySQL -----
+  lulu-db:
+    image: mysql:8.0
+    container_name: lulu-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: lulu_app
+      MYSQL_USER: lulu_app
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      # 3309 : ne gêne pas la base d'AI Prospect Hunter (3308). Accessible depuis votre PC uniquement.
+      - "127.0.0.1:3309:3306"
+    volumes:
+      - lulu-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ----- Application -----
+  app:
+    build: .
+    image: lulu-app:latest
+    container_name: lulu-app
+    restart: "no"
+    depends_on:
+      lulu-db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://lulu-db:3306/lulu_app?serverTimezone=UTC
+      TZ: Europe/Paris
+    ports:
+      - "127.0.0.1:8081:8081"
+    mem_limit: 768m
+
+volumes:
+  lulu-mysql-data:

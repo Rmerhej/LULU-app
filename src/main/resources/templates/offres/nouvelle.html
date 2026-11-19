@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ajouter une offre')}"></head>
+
+<body>
+<div class="lulu-shell">
+    <aside th:replace="~{fragments/layout :: side('nouvelle')}"></aside>
+
+    <main class="lulu-main">
+        <h1 class="mb-2">Ajouter une offre</h1>
+        <p class="lulu-lead mb-4">
+            Pour une offre vue sur le site carrière d'une maison, sur LinkedIn ou sur Welcome to the Jungle :
+            copiez tout le texte de l'annonce et collez-le ci-dessous. L'IA en retire l'intitulé, la maison,
+            le lieu et le contrat.
+        </p>
+
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
+        <form th:action="@{/offres/nouvelle}" th:object="${offer}" method="post" class="lulu-panel js-busy" novalidate>
+            <div class="mb-3">
+                <label for="url" class="form-label">Lien de l'annonce</label>
+                <input type="url" th:field="*{url}" class="form-control" th:errorclass="is-invalid"
+                       placeholder="https://…">
+                <div class="invalid-feedback" th:errors="*{url}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="text" class="form-label">Texte de l'annonce *</label>
+                <textarea th:field="*{text}" rows="16" class="form-control" th:errorclass="is-invalid"></textarea>
+                <div class="invalid-feedback" th:errors="*{text}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-lulu" data-busy="Lecture de l'annonce…">Ajouter l'offre</button>
+        </form>
+    </main>
+</div>
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

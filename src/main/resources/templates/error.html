@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<!-- Remplace la page blanche "Whitelabel Error Page". Variables fournies par Spring Boot : status, path. -->
+<head th:replace="~{fragments/layout :: head('Erreur')}"></head>
+
+<body>
+<main class="lulu-login">
+    <div class="lulu-panel text-center">
+        <div class="lulu-figure mb-2" th:text="${status}">Erreur</div>
+        <h1 class="h4" th:switch="${status}">
+            <span th:case="404">Cette page n'existe pas.</span>
+            <span th:case="403">Accès refusé.</span>
+            <span th:case="400">Requête invalide.</span>
+            <span th:case="*">Une erreur inattendue s'est produite.</span>
+        </h1>
+        <a th:href="@{/}" class="btn btn-lulu mt-2">Retour à l'accueil</a>
+    </div>
+</main>
+</body>
+</html>
