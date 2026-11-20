@@ -5,11 +5,14 @@
 <body>
 <main class="lulu-login">
     <div class="lulu-panel">
-        <p class="lulu-brand text-center mb-1" style="color: var(--lulu-ink)">LULU</p>
+        <p class="lulu-brand lulu-brand-ink text-center mb-1">LULU</p>
         <p class="text-center lulu-figure-label mb-4">Carnet de candidatures</p>
 
         <div th:if="${param.error}" class="alert alert-danger py-2" role="alert">
             Identifiant ou mot de passe incorrect.
+        </div>
+        <div th:if="${param.bloque}" class="alert alert-danger py-2" role="alert">
+            Trop d'essais incorrects. Réessayez dans 15 minutes.
         </div>
         <div th:if="${param.logout}" class="alert alert-success py-2" role="status">
             Vous êtes déconnectée.
@@ -21,10 +24,14 @@
                 <input type="text" id="username" name="username" class="form-control"
                        autocomplete="username" required autofocus>
             </div>
-            <div class="mb-4">
+            <div class="mb-3">
                 <label for="password" class="form-label">Mot de passe</label>
                 <input type="password" id="password" name="password" class="form-control"
                        autocomplete="current-password" required>
+            </div>
+            <div class="form-check mb-4">
+                <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">
+                <label for="remember-me" class="form-check-label">Rester connectée sur cet appareil (30 jours)</label>
             </div>
             <button type="submit" class="btn btn-lulu w-100">Se connecter</button>
         </form>
