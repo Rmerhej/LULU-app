@@ -2,6 +2,7 @@ package fr.lulu.app.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,6 +28,15 @@ class SecurityTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /** Identifiants factices de src/test/resources/application.properties (jamais écrits en dur ici). */
+    @Value("${lulu.security.username}")
+    private String user;
+
+    @Value("${lulu.security.password}")
+    private String secret;
+
+    private static final String WRONG = "x".repeat(10);
+
     @Test
     void unePageProtegeeRedirigeVersLaConnexion() throws Exception {
         mockMvc.perform(get("/offres"))
@@ -36,14 +46,14 @@ class SecurityTest {
 
     @Test
     void connexionAvecLeBonMotDePasse() throws Exception {
-        mockMvc.perform(formLogin().user("lulu").password("motdepasse-test"))
+        mockMvc.perform(formLogin().user(user).password(secret))
                 .andExpect(authenticated())
                 .andExpect(redirectedUrl("/"));
     }
 
     @Test
     void connexionRefuseeAvecUnMauvaisMotDePasse() throws Exception {
-        mockMvc.perform(formLogin().user("lulu").password("mauvais"))
+        mockMvc.perform(formLogin().user(user).password(WRONG))
                 .andExpect(unauthenticated());
     }
 
@@ -106,7 +116,7 @@ class SecurityTest {
     @Test
     void resterConnecteeDeposeUnCookie() throws Exception {
         mockMvc.perform(post("/login").with(csrf())
-                        .param("username", "lulu").param("password", "motdepasse-test")
+                        .param("username", user).param("password", secret)
                         .param("remember-me", "on"))
                 .andExpect(authenticated())
                 .andExpect(cookie().exists("remember-me"))
@@ -117,17 +127,17 @@ class SecurityTest {
     void adresseBloqueeApresCinqEchecs() throws Exception {
         for (int i = 0; i < 5; i++) {
             mockMvc.perform(post("/login").with(csrf()).with(depuis("10.9.9.9"))
-                            .param("username", "lulu").param("password", "mauvais"))
+                            .param("username", user).param("password", WRONG))
                     .andExpect(unauthenticated());
         }
         // Même le bon mot de passe est refusé tant que le blocage dure
         mockMvc.perform(post("/login").with(csrf()).with(depuis("10.9.9.9"))
-                        .param("username", "lulu").param("password", "motdepasse-test"))
+                        .param("username", user).param("password", secret))
                 .andExpect(unauthenticated())
                 .andExpect(redirectedUrl("/login?bloque"));
         // Une autre adresse peut toujours se connecter
         mockMvc.perform(post("/login").with(csrf()).with(depuis("10.8.8.8"))
-                        .param("username", "lulu").param("password", "motdepasse-test"))
+                        .param("username", user).param("password", secret))
                 .andExpect(authenticated());
     }
 
