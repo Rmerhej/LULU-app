@@ -6,10 +6,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.context.event.EventListener;
-import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,19 +61,5 @@ public class LoginAttemptService {
 
     private boolean expired(Attempts value) {
         return value.lastFailure().plus(BLOCK_DURATION).isBefore(clock.instant());
-    }
-
-    @EventListener
-    public void onFailure(AuthenticationFailureBadCredentialsEvent event) {
-        if (event.getAuthentication().getDetails() instanceof WebAuthenticationDetails details) {
-            loginFailed(details.getRemoteAddress());
-        }
-    }
-
-    @EventListener
-    public void onSuccess(AuthenticationSuccessEvent event) {
-        if (event.getAuthentication().getDetails() instanceof WebAuthenticationDetails details) {
-            loginSucceeded(details.getRemoteAddress());
-        }
     }
 }

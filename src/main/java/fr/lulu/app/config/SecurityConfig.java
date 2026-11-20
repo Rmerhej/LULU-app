@@ -70,8 +70,17 @@ public class SecurityConfig {
                 .addFilterBefore(new LoginThrottleFilter(loginAttempts), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form
                         .loginPage("/login")
-                        // Toujours revenir à l'accueil (évite un retour vers /favicon.ico ou /error)
-                        .defaultSuccessUrl("/", true)
+                        // Succès : compteur d'échecs remis à zéro, puis toujours l'accueil
+                        // (évite un retour vers /favicon.ico ou /error)
+                        .successHandler((request, response, authentication) -> {
+                            loginAttempts.loginSucceeded(request.getRemoteAddr());
+                            response.sendRedirect(request.getContextPath() + "/");
+                        })
+                        // Échec : on compte l'essai pour cette adresse
+                        .failureHandler((request, response, exception) -> {
+                            loginAttempts.loginFailed(request.getRemoteAddr());
+                            response.sendRedirect(request.getContextPath() + "/login?error");
+                        })
                         .permitAll())
                 .rememberMe(remember -> remember
                         .tokenRepository(tokenRepository)
