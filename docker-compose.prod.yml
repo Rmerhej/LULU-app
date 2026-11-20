@@ -1,0 +1,54 @@
+# Production (serveur Oracle fle-presence), derrière le Caddy de fle-presence.
+# Lancement : docker compose -f docker-compose.prod.yml up -d   (ou bash deploy/mise-a-jour.sh)
+# L'image est publiée sur Docker Hub par la CI : rien n'est compilé sur le serveur.
+name: lulu
+
+services:
+
+  lulu-db:
+    image: mysql:8.0
+    container_name: lulu-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: lulu_app
+      MYSQL_USER: lulu_app
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: Europe/Paris
+    # Réglages économes : le serveur héberge aussi FLE Présence et PlanSécu
+    command:
+      - --performance-schema=OFF
+      - --innodb-buffer-pool-size=64M
+      - --max-connections=30
+      - --skip-name-resolve
+    volumes:
+      - lulu-mysql-data:/var/lib/mysql
+    # Aucun port ouvert : seule l'application joint la base, par le réseau Docker interne
+    mem_limit: 320m
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  lulu-app:
+    image: ${LULU_IMAGE:-rolandmerhej1/lulu-app:latest}
+    container_name: lulu-app
+    restart: unless-stopped
+    depends_on:
+      lulu-db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://lulu-db:3306/lulu_app?serverTimezone=UTC
+      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
+      TZ: Europe/Paris
+      JAVA_OPTS: -XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k
+    ports:
+      # Uniquement pour tester depuis le serveur (curl http://127.0.0.1:8082/login).
+      # 8082 : le port 8081 est déjà pris par PlanSécu. Le public passe par Caddy (HTTPS).
+      - "127.0.0.1:8082:8081"
+    mem_limit: 512m
+
+volumes:
+  lulu-mysql-data:

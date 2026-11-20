@@ -131,11 +131,43 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 @media (max-width: 767.98px) {
     .lulu-shell { grid-template-columns: 1fr; }
-    .lulu-side { padding: 1rem; gap: 0.75rem; }
-    .lulu-nav { flex-direction: row; flex-wrap: wrap; }
-    .lulu-nav a { border-left: none; border-bottom: 2px solid transparent; }
-    .lulu-nav a.active, .lulu-nav a:hover { border-bottom-color: var(--lulu-brass); }
+    /* Sur téléphone : bandeau compact collé en haut, menu qui défile à l'horizontale */
+    .lulu-side {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.5rem;
+        gap: 0.5rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .lulu-brand { font-size: 1.4rem; }
+    .lulu-brand small { display: none; }
+    .lulu-nav {
+        order: 3;
+        flex: 1 0 100%;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        margin: 0 -1rem;
+        padding: 0 0.5rem;
+    }
+    .lulu-nav::-webkit-scrollbar { display: none; }
+    .lulu-nav a {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        padding: 0.6rem 0.65rem;
+    }
+    .lulu-nav a.active, .lulu-nav a:hover { border-bottom-color: var(--lulu-brass); background: none; }
     .lulu-side .lulu-logout { margin-top: 0; }
+    .lulu-side .lulu-logout button { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+    .lulu-main { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
+    /* Champs à 16 px minimum : évite le zoom automatique de l'iPhone */
+    .form-control, .form-select { font-size: 1rem; }
 }
 
 /* ----- Surfaces ----- */
@@ -316,3 +348,35 @@ h3 { font-size: 1rem; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
 }
+
+/* ----- Classes utilitaires (remplacent les styles en ligne, interdits par la CSP) ----- */
+.lulu-brand-ink { color: var(--lulu-ink); }
+.lulu-figure-hot { color: var(--lulu-oxblood); }
+.lulu-score-lg { width: 3.4rem; height: 3.4rem; font-size: 1.3rem; }
+
+/* ----- Application installée (PWA) : bannière d'installation ----- */
+.lulu-install {
+    position: fixed;
+    left: 50%;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--lulu-ink);
+    color: #FFFFFF;
+    padding: 0.6rem 0.6rem 0.6rem 1rem;
+    border-left: 3px solid var(--lulu-brass);
+    box-shadow: 0 6px 24px rgba(28, 35, 64, 0.25);
+    max-width: calc(100% - 2rem);
+}
+.lulu-install[hidden] { display: none; }
+.lulu-install button {
+    border: none;
+    background: var(--lulu-brass);
+    color: var(--lulu-ink);
+    font-weight: 600;
+    padding: 0.35rem 0.8rem;
+}
+.lulu-install .lulu-install-close { background: none; color: #C9CDD9; padding: 0.35rem 0.5rem; }

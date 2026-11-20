@@ -9,6 +9,7 @@ développement produit et matières, chef de produit, achat, production.
 
 - [Guide d'utilisation (PDF)](docs/guide-utilisation.pdf)
 - [Stack technique et choix de conception (PDF)](docs/stack-technique.pdf)
+- [Déploiement, sauvegardes et application installable](docs/DEPLOIEMENT.md)
 
 ## Ce que fait l'application
 
@@ -20,6 +21,7 @@ développement produit et matières, chef de produit, achat, production.
   manque, des conseils, et rédige une lettre de motivation dans la langue de l'annonce.
 - **Suivre chaque candidature** : à étudier, à postuler, envoyée, relancée, entretien, offre, refus.
 - **Accueil** : chiffres clés et taux d'entretiens obtenus.
+- **S'installe sur le téléphone** (PWA) et reste connectée 30 jours si on le souhaite.
 
 ## Stack technique
 

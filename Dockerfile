@@ -5,7 +5,10 @@
 # On utilise "mvn" de l'image plutôt que ./mvnw : pas de souci
 # de fins de ligne Windows, et pas de téléchargement de Maven.
 # ============================================================
-FROM maven:3.9-eclipse-temurin-21 AS build
+# --platform=$BUILDPLATFORM : la compilation tourne toujours sur l'architecture de la machine
+# qui construit (rapide). Le .jar obtenu fonctionne partout ; seule l'étape 2 existe en
+# deux versions (PC amd64 et serveur Oracle ARM arm64).
+FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
 # Le pom.xml d'abord : tant qu'il ne change pas, Docker réutilise cette couche

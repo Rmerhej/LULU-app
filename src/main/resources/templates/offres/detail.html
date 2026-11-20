@@ -47,7 +47,7 @@
 
                     <th:block th:if="${offer.analysedAt != null}">
                         <div class="d-flex align-items-center gap-3 mb-3">
-                            <span class="lulu-score" style="width:3.4rem;height:3.4rem;font-size:1.3rem"
+                            <span class="lulu-score lulu-score-lg"
                                   th:classappend="${offer.aiScore >= 70} ? 'high' : (${offer.aiScore >= 45} ? 'mid' : '')"
                                   th:text="${offer.aiScore}"></span>
                             <span class="lulu-figure-label"

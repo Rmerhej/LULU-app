@@ -36,9 +36,15 @@ spring:
 server:
   # 8081 : LULU-app peut tourner en même temps qu'AI Prospect Hunter (8080)
   port: 8081
+  # Derrière Caddy (HTTPS) : on fait confiance aux en-têtes X-Forwarded-* envoyés par le proxy.
+  # Spring sait alors que la visite est en HTTPS (cookies "Secure", HSTS, vraie adresse IP du visiteur).
+  forward-headers-strategy: native
   servlet:
     session:
       persistent: false
+      cookie:
+        http-only: true
+        same-site: lax
 
 lulu:
   ai:

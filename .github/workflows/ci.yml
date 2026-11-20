@@ -1,5 +1,7 @@
-# Intégration continue : à chaque push sur main et à chaque Pull Request,
-# GitHub lance les tests puis vérifie que l'image Docker se construit.
+# Intégration continue :
+# - à chaque Pull Request : tests + vérification que l'image Docker se construit ;
+# - à chaque push sur main : tests, puis publication de l'image sur Docker Hub
+#   en deux versions (PC amd64 et serveur Oracle ARM arm64).
 # Résultat visible dans l'onglet "Actions" du dépôt et directement dans chaque Pull Request.
 name: CI
 
@@ -42,5 +44,37 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v5
 
-      - name: Construire l'image
-        run: docker build -t lulu-app:ci .
+      # Émulation ARM : permet de produire l'image pour le serveur Oracle (arm64)
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Pull Request : on vérifie seulement que l'image se construit (rien n'est publié)
+      - name: Construire l'image (vérification)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: false
+
+      # Push sur main : publication sur Docker Hub
+      # Secrets à créer dans Settings > Secrets and variables > Actions :
+      # DOCKERHUB_USERNAME et DOCKERHUB_TOKEN (jeton Docker Hub en lecture/écriture)
+      - name: Connexion à Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construire et publier l'image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/lulu-app:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/lulu-app:${{ github.sha }}

@@ -42,7 +42,7 @@
             </div>
             <div class="col-6 col-lg-3">
                 <div class="lulu-panel h-100">
-                    <div class="lulu-figure" style="color: var(--lulu-oxblood)" th:text="${s.entretiens()}">0</div>
+                    <div class="lulu-figure lulu-figure-hot" th:text="${s.entretiens()}">0</div>
                     <div class="lulu-figure-label"
                          th:text="${s.tauxReponse() != null} ? ${'entretiens ou offres (' + s.tauxReponse() + ' % des envois)'} : 'entretiens ou offres'">
                         entretiens ou offres
