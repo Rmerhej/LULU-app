@@ -1,7 +1,8 @@
 # Intégration continue :
 # - à chaque Pull Request : tests + vérification que l'image Docker se construit ;
-# - à chaque push sur main : tests, puis publication de l'image sur Docker Hub
-#   en deux versions (PC amd64 et serveur Oracle ARM arm64).
+# - à chaque push sur main : tests, publication de l'image sur Docker Hub
+#   en deux versions (PC amd64 et serveur Oracle ARM arm64), puis mise en ligne
+#   automatique sur le serveur fle-presence.
 # Résultat visible dans l'onglet "Actions" du dépôt et directement dans chaque Pull Request.
 name: CI
 
@@ -78,3 +79,39 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/lulu-app:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/lulu-app:${{ github.sha }}
+
+  deploiement:
+    name: Mise en ligne
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.event_name == 'push'
+    # Jamais deux mises en ligne en même temps
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    steps:
+      # Secrets : SERVEUR_HOTE, SERVEUR_UTILISATEUR, SERVEUR_CLE_SSH (clé réservée au déploiement)
+      - name: Préparer la connexion SSH
+        env:
+          CLE: ${{ secrets.SERVEUR_CLE_SSH }}
+          HOTE: ${{ secrets.SERVEUR_HOTE }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$CLE" > ~/.ssh/deploiement && chmod 600 ~/.ssh/deploiement
+          ssh-keyscan -H "$HOTE" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Mettre le serveur à jour
+        env:
+          HOTE: ${{ secrets.SERVEUR_HOTE }}
+          UTILISATEUR: ${{ secrets.SERVEUR_UTILISATEUR }}
+        run: |
+          ssh -i ~/.ssh/deploiement -o IdentitiesOnly=yes "$UTILISATEUR@$HOTE" '
+            if [ -d ~/lulu-app ]; then
+              bash ~/lulu-app/deploy/mise-a-jour.sh
+            else
+              echo "LULU n'"'"'est pas encore installée sur le serveur (~/lulu-app absent) : rien à mettre à jour."
+            fi'
+
+      - name: Effacer la clé
+        if: always()
+        run: rm -f ~/.ssh/deploiement

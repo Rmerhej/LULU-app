@@ -24,5 +24,6 @@ for i in $(seq 1 24); do
   fi
   sleep 5
 done
-echo "LULU ne répond pas encore. Regardez les journaux : docker logs --tail 80 lulu-app"
+echo "LULU ne répond pas après 2 minutes. Derniers journaux :"
+docker logs --tail 80 lulu-app
 exit 1

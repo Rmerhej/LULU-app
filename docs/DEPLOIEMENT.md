@@ -43,11 +43,18 @@ GitHub (push sur main) ──CI──▶ Docker Hub rolandmerhej1/lulu-app ─�
    ```
 6. **Surveillance** : sonde UptimeRobot (HTTPS) sur `https://lulu-app.duckdns.org/login`.
 
+## Mise en ligne automatique
+
+À chaque merge sur main, la CI enchaîne : tests, image Docker Hub, puis **Mise en ligne**
+(connexion SSH au serveur et `deploy/mise-a-jour.sh`, qui vérifie que LULU répond).
+Secrets du dépôt : `SERVEUR_HOTE` (141.253.100.80), `SERVEUR_UTILISATEUR` (ubuntu),
+`SERVEUR_CLE_SSH` (clé privée `~/.ssh/fle_deploiement`, déjà autorisée sur le serveur).
+
 ## Au quotidien
 
 | Besoin | Commande (sur le serveur) |
 |---|---|
-| Mettre à jour après un merge | `bash ~/lulu-app/deploy/mise-a-jour.sh` |
+| Mettre à jour à la main (si besoin) | `bash ~/lulu-app/deploy/mise-a-jour.sh` |
 | Journaux de l'appli | `docker logs --tail 80 lulu-app` |
 | Mémoire utilisée | `docker stats --no-stream lulu-app lulu-db` |
 | Sauvegarder maintenant | `bash ~/lulu-app/deploy/sauvegarde.sh` |
