@@ -23,7 +23,9 @@ public class LoginThrottleFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !("POST".equals(request.getMethod()) && "/login".equals(request.getServletPath()));
+        // getRequestURI() et non getServletPath() : ce dernier peut être vide selon le conteneur
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        return !("POST".equals(request.getMethod()) && "/login".equals(path));
     }
 
     @Override
