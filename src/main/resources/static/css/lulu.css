@@ -56,7 +56,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 .lulu-shell {
     display: grid;
-    grid-template-columns: 232px 1fr;
+    /* minmax(0, 1fr) : la colonne ne s'élargit jamais pour faire place à son contenu */
+    grid-template-columns: 232px minmax(0, 1fr);
     min-height: 100vh;
 }
 
@@ -144,7 +145,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 
 @media (max-width: 767.98px) {
-    .lulu-shell { grid-template-columns: 1fr; }
+    /* Sur téléphone, le menu horizontal (Accueil, Rechercher, Mes offres…) est plus large que l'écran :
+       avec "1fr", la colonne prenait sa largeur et toute la page débordait à droite.
+       minmax(0, 1fr) garde la page à la largeur de l'écran ; le menu défile seul, au doigt. */
+    .lulu-shell { grid-template-columns: minmax(0, 1fr); }
+    .lulu-side { min-width: 0; }
     /* Sur téléphone : bandeau compact collé en haut, menu qui défile à l'horizontale */
     .lulu-side {
         position: sticky;
@@ -272,7 +277,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 .lulu-offer {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.25rem 1.5rem;
     padding: 1.1rem 0;
     border-bottom: 1px solid var(--lulu-line);

@@ -6,7 +6,7 @@
  * - Sans réseau : page "Pas de connexion".
  * Changer VERSION à chaque modification de ce fichier ou des fichiers mis en cache.
  */
-const VERSION = "lulu-v2";
+const VERSION = "lulu-v3";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
     OFFLINE_URL,
