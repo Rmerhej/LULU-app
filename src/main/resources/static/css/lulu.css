@@ -24,10 +24,22 @@
     --bs-border-radius: var(--lulu-radius);
 }
 
+/* Téléphone : la page ne doit jamais glisser à gauche ou à droite.
+   "clip" coupe ce qui dépasse sans casser la barre collante ; "hidden" pour les anciens navigateurs. */
+html, body { overflow-x: hidden; }
+@supports (overflow: clip) {
+    html, body { overflow-x: clip; }
+}
+
 body {
     font-size: 0.95rem;
     line-height: 1.6;
+    /* Un mot ou une adresse web très longs passent à la ligne au lieu d'élargir la page */
+    overflow-wrap: break-word;
 }
+
+img, video, iframe, table, pre { max-width: 100%; }
+pre { overflow-x: auto; white-space: pre-wrap; }
 
 h1, h2, .lulu-display {
     font-family: "Bodoni Moda", Georgia, serif;
@@ -122,6 +134,8 @@ h3 { font-size: 1rem; font-weight: 600; }
     padding: 2.5rem clamp(1rem, 4vw, 3.5rem);
     max-width: 1180px;
     width: 100%;
+    /* Sans ça, un contenu trop large (lien d'offre, texte collé) élargit toute la colonne */
+    min-width: 0;
 }
 
 .lulu-lead {
@@ -380,3 +394,16 @@ h3 { font-size: 1rem; font-weight: 600; }
     padding: 0.35rem 0.8rem;
 }
 .lulu-install .lulu-install-close { background: none; color: #C9CDD9; padding: 0.35rem 0.5rem; }
+
+/* ----- Mot de passe : bouton « œil » pour afficher ou masquer ----- */
+
+.lulu-password { position: relative; }
+.lulu-password .form-control { padding-right: 3.2rem; }
+.lulu-password-toggle {
+    position: absolute; top: 50%; right: 0.25rem; transform: translateY(-50%);
+    width: 2.75rem; height: 2.75rem; border: 0; border-radius: var(--lulu-radius);
+    background: transparent; color: var(--lulu-muted);
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.lulu-password-toggle:hover, .lulu-password-toggle:focus-visible { color: var(--lulu-ink); }
+.lulu-password-toggle svg { width: 1.25rem; height: 1.25rem; }

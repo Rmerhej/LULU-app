@@ -6,13 +6,14 @@
  * - Sans réseau : page "Pas de connexion".
  * Changer VERSION à chaque modification de ce fichier ou des fichiers mis en cache.
  */
-const VERSION = "lulu-v1";
+const VERSION = "lulu-v2";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
     OFFLINE_URL,
     "/css/lulu.css",
     "/js/app.js",
     "/js/pwa.js",
+    "/js/password.js",
     "/icons/icon-192.png",
     "/manifest.json"
 ];
